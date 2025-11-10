@@ -1,0 +1,63 @@
+-- SQL Practical 7 - Implementation of Subqueries and Nested Queries
+-- Aim: To understand and execute SQL subqueries and nested queries in MySQL.
+
+-- 1. Create a Database
+CREATE DATABASE SubqueryDemo;
+
+-- 2. Use the Database
+USE SubqueryDemo;
+
+-- 3. Create Employee Table
+CREATE TABLE Employee (
+  Emp_ID INT PRIMARY KEY,
+  Emp_Name VARCHAR(50),
+  Department VARCHAR(50),
+  Salary DECIMAL(10,2),
+  City VARCHAR(50)
+);
+
+-- 4. Insert Data
+INSERT INTO Employee VALUES (101, 'Abhi', 'IT', 55000, 'Pune');
+INSERT INTO Employee VALUES (102, 'Hitesh', 'HR', 48000, 'Mumbai');
+INSERT INTO Employee VALUES (103, 'Ashley', 'Finance', 60000, 'Pune');
+INSERT INTO Employee VALUES (104, 'Piyush', 'IT', 65000, 'Delhi');
+INSERT INTO Employee VALUES (105, 'Pratik', 'Finance', 52000, 'Pune');
+INSERT INTO Employee VALUES (106, 'Kalpesh', 'HR', 47000, 'Mumbai');
+
+-- 5. Simple Subquery
+-- Display employees earning more than the average salary
+SELECT Emp_Name, Salary FROM Employee
+WHERE Salary > (SELECT AVG(Salary) FROM Employee);
+
+-- 6. Subquery with IN Operator
+-- Display employees working in the same cities as IT department employees
+SELECT Emp_Name, City FROM Employee
+WHERE City IN (SELECT City FROM Employee WHERE Department = 'IT');
+
+-- 7. Subquery with ANY Operator
+-- Display employees who earn more than any HR employee
+SELECT Emp_Name, Salary FROM Employee
+WHERE Salary > ANY (SELECT Salary FROM Employee WHERE Department = 'HR');
+
+-- 8. Subquery with ALL Operator
+-- Display employees who earn more than all HR employees
+SELECT Emp_Name, Salary FROM Employee
+WHERE Salary > ALL (SELECT Salary FROM Employee WHERE Department = 'HR');
+
+-- 9. Correlated Subquery
+-- Display employees whose salary is above the average salary of their department
+SELECT e.Emp_Name, e.Department, e.Salary
+FROM Employee e
+WHERE e.Salary > (SELECT AVG(Salary) FROM Employee WHERE Department = e.Department);
+
+-- 10. Nested Subquery Example
+-- Display the employee(s) with the second highest salary
+SELECT Emp_Name, Salary FROM Employee
+WHERE Salary = (
+  SELECT MAX(Salary) FROM Employee
+  WHERE Salary < (SELECT MAX(Salary) FROM Employee)
+);
+
+-- 11. Drop the Table and Database
+DROP TABLE Employee;
+DROP DATABASE SubqueryDemo;

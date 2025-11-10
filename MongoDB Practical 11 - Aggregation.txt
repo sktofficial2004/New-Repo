@@ -1,0 +1,62 @@
+// MongoDB Practical 11 - Aggregation and Indexing
+// Aim: To perform aggregation and indexing in MongoDB.
+
+// 1. Switch to (or create) a database
+use comp;
+
+// 2. Create a collection
+db.createCollection('website');
+
+// 3. Insert documents
+db.website.insert({ 'roll': 1, 'name': 'harsh', 'amount': 1000, 'url': 'www.yahoo.com' });
+db.website.insert({ 'roll': 2, 'name': 'jitesh', 'amount': 2000, 'url': 'www.yahoo.com' });
+db.website.insert({ 'roll': 3, 'name': 'rina', 'amount': 3000, 'url': 'www.google.com' });
+db.website.insert({ 'roll': 4, 'name': 'ash', 'amount': 4000, 'url': 'www.gmail.com' });
+db.website.insert({ 'roll': 5, 'name': 'ash', 'amount': 1000, 'url': 'www.pvg.com' });
+
+// 4. Aggregation Operations
+
+// A) SUM - Total amount for each name
+db.website.aggregate({ $group: { _id: '$name', total: { $sum: '$amount' } } });
+
+// B) AVG - Average amount for each name
+db.website.aggregate({ $group: { _id: '$name', total: { $avg: '$amount' } } });
+
+// C) MIN - Minimum amount for each name
+db.website.aggregate({ $group: { _id: '$name', total: { $min: '$amount' } } });
+
+// D) MAX - Maximum amount for each name
+db.website.aggregate({ $group: { _id: '$name', total: { $max: '$amount' } } });
+
+// E) FIRST - First record found for each name
+db.website.aggregate({ $group: { _id: '$name', total: { $first: '$amount' } } });
+
+// F) LAST - Last record found for each name
+db.website.aggregate({ $group: { _id: '$name', total: { $last: '$amount' } } });
+
+// G) PUSH - Create an array of amounts per name
+db.website.aggregate({ $group: { _id: '$name', total: { $push: '$amount' } } });
+
+// H) COUNT - Count number of entries per name
+db.website.aggregate({ $group: { _id: '$name', total: { $sum: 1 } } });
+
+// I) ADDTOSET - Unique values per name
+db.website.aggregate({ $group: { _id: '$name', total: { $addToSet: '$amount' } } });
+
+// 5. Indexing Operations
+
+// A) Create another collection
+db.createCollection('website1');
+db.website1.insert({ 'r': 1, 'name': 'harsh' });
+
+// B) Create an index on 'name' field
+db.website1.createIndex({ 'name': 1 });
+
+// C) Display indexes
+db.website1.getIndexes();
+
+// D) Drop a specific index
+db.website1.dropIndex({ 'name': 1 });
+
+// E) Create a compound index (on multiple fields)
+db.website1.createIndex({ 'name': 1, 'r': -1 });

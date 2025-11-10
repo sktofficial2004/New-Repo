@@ -1,0 +1,53 @@
+-- SQL Practical 4 - Implementation of SQL Functions
+-- Aim: To use built-in SQL functions such as string, numeric, date, and aggregate functions.
+
+-- 1. Create a Database
+CREATE DATABASE CollegeFunctions;
+
+-- 2. Use the Database
+USE CollegeFunctions;
+
+-- 3. Create a Table for Student Details
+CREATE TABLE Student (
+  Roll_No INT PRIMARY KEY,
+  Name VARCHAR(50),
+  Department VARCHAR(50),
+  Marks INT,
+  DOB DATE
+);
+
+-- 4. Insert Records
+INSERT INTO Student VALUES (1, 'Abhi', 'Computer', 89, '2003-05-12');
+INSERT INTO Student VALUES (2, 'Hitesh', 'IT', 76, '2002-12-05');
+INSERT INTO Student VALUES (3, 'Ashley', 'Mechanical', 82, '2003-01-10');
+INSERT INTO Student VALUES (4, 'Piyush', 'Computer', 91, '2002-09-20');
+INSERT INTO Student VALUES (5, 'Pratik', 'Civil', 67, '2001-03-15');
+
+-- 5. String Functions
+SELECT UPPER(Name) AS UpperCaseName FROM Student;       -- Converts to uppercase
+SELECT LOWER(Name) AS LowerCaseName FROM Student;       -- Converts to lowercase
+SELECT LENGTH(Name) AS NameLength FROM Student;         -- Returns string length
+SELECT SUBSTRING(Name, 1, 3) AS ShortName FROM Student; -- Extracts part of the string
+
+-- 6. Numeric Functions
+SELECT ABS(-45) AS AbsoluteValue;                        -- Returns positive number
+SELECT ROUND(56.789, 2) AS RoundedValue;                -- Rounds to 2 decimal places
+SELECT CEIL(8.3) AS CeilingValue;                       -- Rounds up
+SELECT FLOOR(8.7) AS FloorValue;                        -- Rounds down
+
+-- 7. Date Functions
+SELECT CURDATE() AS CurrentDate;                        -- Displays current date
+SELECT YEAR(DOB) AS BirthYear FROM Student;             -- Extracts year from DOB
+SELECT MONTH(DOB) AS BirthMonth FROM Student;           -- Extracts month from DOB
+SELECT DATEDIFF(CURDATE(), DOB) AS DaysLived FROM Student; -- Difference in days
+
+-- 8. Aggregate Functions
+SELECT COUNT(*) AS TotalStudents FROM Student;          -- Counts total records
+SELECT MAX(Marks) AS HighestMarks FROM Student;         -- Highest marks
+SELECT MIN(Marks) AS LowestMarks FROM Student;          -- Lowest marks
+SELECT AVG(Marks) AS AverageMarks FROM Student;         -- Average marks
+SELECT SUM(Marks) AS TotalMarks FROM Student;           -- Sum of marks
+
+-- 9. Drop the Table and Database
+DROP TABLE Student;
+DROP DATABASE CollegeFunctions;

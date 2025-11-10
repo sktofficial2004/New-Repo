@@ -1,0 +1,56 @@
+-- SQL Practical 2 - DDL, DML, and DCL Operations
+-- Aim: To perform Data Definition Language (DDL), Data Manipulation Language (DML), and Data Control Language (DCL) operations in MySQL.
+
+-- 1. Create a Database
+CREATE DATABASE College;
+
+-- 2. Use the Database
+USE College;
+
+-- 3. Create a Table for Student Details
+CREATE TABLE Student (
+  Roll_No INT PRIMARY KEY,
+  Name VARCHAR(50),
+  Department VARCHAR(50),
+  Marks INT
+);
+
+-- 4. Insert Records into Student Table
+INSERT INTO Student VALUES (1, 'Abhi', 'Computer', 89);
+INSERT INTO Student VALUES (2, 'Hitesh', 'IT', 76);
+INSERT INTO Student VALUES (3, 'Ashley', 'Mechanical', 82);
+INSERT INTO Student VALUES (4, 'Piyush', 'Computer', 91);
+INSERT INTO Student VALUES (5, 'Pratik', 'Civil', 67);
+
+-- 5. Display All Records
+SELECT * FROM Student;
+
+-- 6. Update a Record
+UPDATE Student SET Marks = 95 WHERE Roll_No = 4;
+
+-- 7. Delete a Record
+DELETE FROM Student WHERE Roll_No = 5;
+
+-- 8. Add a New Column to Table
+ALTER TABLE Student ADD COLUMN City VARCHAR(50);
+
+-- 9. Rename a Column
+ALTER TABLE Student CHANGE COLUMN Department Dept_Name VARCHAR(50);
+
+-- 10. Drop a Column
+ALTER TABLE Student DROP COLUMN City;
+
+-- 11. Create a User (DCL Example)
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password123';
+
+-- 12. Grant Privileges to the User
+GRANT SELECT, INSERT, UPDATE ON College.* TO 'newuser'@'localhost';
+
+-- 13. Revoke Privileges from the User
+REVOKE INSERT ON College.* FROM 'newuser'@'localhost';
+
+-- 14. Drop the Table
+DROP TABLE Student;
+
+-- 15. Drop the Database
+DROP DATABASE College;

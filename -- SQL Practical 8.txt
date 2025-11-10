@@ -1,0 +1,97 @@
+-- SQL Practical 8 - Implementation of Triggers
+-- Aim: To create and execute triggers in MySQL for automatic data tracking.
+
+-- 1. Create a Database
+CREATE DATABASE TriggerDemo;
+
+-- 2. Use the Database
+USE TriggerDemo;
+
+-- 3. Create Main Table (Borrower)
+CREATE TABLE Borrower (
+  Roll_No INT,
+  Name VARCHAR(20),
+  Date_Of_Issue DATE,
+  Book_Name VARCHAR(30),
+  Status VARCHAR(20),
+  Author VARCHAR(20)
+);
+
+-- 4. Create Audit Table to Track Changes
+CREATE TABLE Audit (
+  Roll_No INT,
+  Name VARCHAR(20),
+  Date_Of_Issue DATE,
+  Book_Name VARCHAR(30),
+  Status VARCHAR(20),
+  Author VARCHAR(20),
+  Time_Stamp TIMESTAMP
+);
+
+-- 5. Insert Sample Records into Borrower Table
+INSERT INTO Borrower VALUES (1, 'Nick', '2018-06-10', 'Wings of Fire', 'Available', 'APJ');
+INSERT INTO Borrower VALUES (2, 'Mira', '2018-05-11', 'Leaves Life', 'Not Available', 'Borwarkar');
+INSERT INTO Borrower VALUES (3, 'Rina', '2018-02-12', 'Unusual', 'Available', 'Johar');
+INSERT INTO Borrower VALUES (4, 'Harsha', '2018-06-20', 'Sky Limit', 'Available', 'Ingale');
+INSERT INTO Borrower VALUES (5, 'Tej', '2018-04-20', 'Highway', 'Not Available', 'KLM');
+
+-- 6. AFTER INSERT Trigger
+DELIMITER //
+CREATE TRIGGER after_insert_borrower
+AFTER INSERT ON Borrower
+FOR EACH ROW
+BEGIN
+  INSERT INTO Audit VALUES (NEW.Roll_No, NEW.Name, NEW.Date_Of_Issue, NEW.Book_Name, NEW.Status, NEW.Author, CURRENT_TIMESTAMP);
+END;//
+DELIMITER ;
+
+-- 7. Test INSERT Trigger
+INSERT INTO Borrower VALUES (6, 'XYZ', '2018-09-06', 'AAA', 'Available', 'XXX');
+SELECT * FROM Audit;
+
+-- 8. AFTER UPDATE Trigger
+DELIMITER //
+CREATE TRIGGER after_update_borrower
+AFTER UPDATE ON Borrower
+FOR EACH ROW
+BEGIN
+  INSERT INTO Audit VALUES (NEW.Roll_No, NEW.Name, NEW.Date_Of_Issue, NEW.Book_Name, NEW.Status, NEW.Author, CURRENT_TIMESTAMP);
+END;//
+DELIMITER ;
+
+-- 9. Test UPDATE Trigger
+UPDATE Borrower SET Book_Name = 'Leaf' WHERE Name = 'XYZ';
+SELECT * FROM Audit;
+
+-- 10. BEFORE INSERT Trigger (Validation Example)
+DELIMITER //
+CREATE TRIGGER before_insert_borrower
+BEFORE INSERT ON Borrower
+FOR EACH ROW
+BEGIN
+  IF NEW.Status IS NULL THEN
+    SET NEW.Status = 'Available';
+  END IF;
+END;//
+DELIMITER ;
+
+-- 11. Statement-Level Trigger Example
+DELIMITER //
+CREATE TRIGGER after_update_statement
+AFTER UPDATE ON Borrower
+BEGIN
+  INSERT INTO Audit (Roll_No, Name, Book_Name, Status, Author, Time_Stamp)
+  VALUES (NULL, 'Statement Trigger', 'N/A', 'Updated All', 'System', CURRENT_TIMESTAMP);
+END;//
+DELIMITER ;
+
+-- 12. Drop Triggers
+DROP TRIGGER after_insert_borrower;
+DROP TRIGGER after_update_borrower;
+DROP TRIGGER before_insert_borrower;
+DROP TRIGGER after_update_statement;
+
+-- 13. Drop Tables and Database
+DROP TABLE Borrower;
+DROP TABLE Audit;
+DROP DATABASE TriggerDemo;

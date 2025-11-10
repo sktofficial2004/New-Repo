@@ -1,0 +1,54 @@
+-- SQL Practical 5 - Implementation of SQL Clauses
+-- Aim: To understand and use SQL clauses such as WHERE, ORDER BY, GROUP BY, and HAVING.
+
+-- 1. Create a Database
+CREATE DATABASE ClauseDemo;
+
+-- 2. Use the Database
+USE ClauseDemo;
+
+-- 3. Create an Employee Table
+CREATE TABLE Employee (
+  Emp_ID INT PRIMARY KEY,
+  Emp_Name VARCHAR(50),
+  Department VARCHAR(50),
+  Salary DECIMAL(10,2),
+  City VARCHAR(50)
+);
+
+-- 4. Insert Records
+INSERT INTO Employee VALUES (101, 'Abhi', 'IT', 55000, 'Pune');
+INSERT INTO Employee VALUES (102, 'Hitesh', 'HR', 48000, 'Mumbai');
+INSERT INTO Employee VALUES (103, 'Ashley', 'Finance', 60000, 'Pune');
+INSERT INTO Employee VALUES (104, 'Piyush', 'IT', 65000, 'Delhi');
+INSERT INTO Employee VALUES (105, 'Pratik', 'Finance', 52000, 'Pune');
+INSERT INTO Employee VALUES (106, 'Kalpesh', 'HR', 47000, 'Mumbai');
+
+-- 5. WHERE Clause
+-- Display employees from Pune city
+SELECT * FROM Employee WHERE City = 'Pune';
+
+-- 6. ORDER BY Clause
+-- Display employees ordered by Salary in descending order
+SELECT * FROM Employee ORDER BY Salary DESC;
+
+-- 7. GROUP BY Clause
+-- Display total salary for each department
+SELECT Department, SUM(Salary) AS Total_Salary FROM Employee GROUP BY Department;
+
+-- 8. HAVING Clause
+-- Display departments having total salary greater than 100000
+SELECT Department, SUM(Salary) AS Total_Salary FROM Employee
+GROUP BY Department
+HAVING SUM(Salary) > 100000;
+
+-- 9. Combine Clauses
+-- Display employees from Pune, order by name, and show average salary by department
+SELECT Department, AVG(Salary) AS Avg_Salary FROM Employee
+WHERE City = 'Pune'
+GROUP BY Department
+ORDER BY Avg_Salary DESC;
+
+-- 10. Drop the Table and Database
+DROP TABLE Employee;
+DROP DATABASE ClauseDemo;

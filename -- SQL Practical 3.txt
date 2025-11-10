@@ -1,0 +1,55 @@
+-- SQL Practical 3 - Implementation of Constraints
+-- Aim: To implement various constraints (Primary Key, Foreign Key, Unique, Not Null, Check, Default) in MySQL.
+
+-- 1. Create a Database
+CREATE DATABASE Company;
+
+-- 2. Use the Database
+USE Company;
+
+-- 3. Create a Department Table
+CREATE TABLE Department (
+  Dept_ID INT PRIMARY KEY,
+  Dept_Name VARCHAR(50) UNIQUE,
+  Location VARCHAR(50) NOT NULL
+);
+
+-- 4. Insert Records into Department
+INSERT INTO Department VALUES (1, 'HR', 'Pune');
+INSERT INTO Department VALUES (2, 'IT', 'Mumbai');
+INSERT INTO Department VALUES (3, 'Finance', 'Delhi');
+
+-- 5. Create an Employee Table with Constraints
+CREATE TABLE Employee (
+  Emp_ID INT PRIMARY KEY,
+  Emp_Name VARCHAR(50) NOT NULL,
+  Salary DECIMAL(10,2) CHECK (Salary > 0),
+  Dept_ID INT,
+  City VARCHAR(50) DEFAULT 'Unknown',
+  FOREIGN KEY (Dept_ID) REFERENCES Department(Dept_ID)
+);
+
+-- 6. Insert Records into Employee
+INSERT INTO Employee VALUES (101, 'Abhi', 45000.00, 1, 'Pune');
+INSERT INTO Employee VALUES (102, 'Hitesh', 50000.00, 2, 'Mumbai');
+INSERT INTO Employee VALUES (103, 'Ashley', 55000.00, 2, 'Nashik');
+INSERT INTO Employee VALUES (104, 'Piyush', 47000.00, 3, 'Delhi');
+INSERT INTO Employee VALUES (105, 'Pratik', 40000.00, 1, DEFAULT);
+
+-- 7. Display All Employee Records
+SELECT * FROM Employee;
+
+-- 8. Try Inserting Invalid Data (to Test Constraints)
+-- This will fail because of CHECK constraint
+-- INSERT INTO Employee VALUES (106, 'Kalpesh', -20000, 2, 'Pune');
+
+-- 9. Try Inserting a Record with Duplicate Dept_Name (to Test UNIQUE constraint)
+-- This will fail because of UNIQUE constraint
+-- INSERT INTO Department VALUES (4, 'HR', 'Nagpur');
+
+-- 10. Drop Tables
+DROP TABLE Employee;
+DROP TABLE Department;
+
+-- 11. Drop Database
+DROP DATABASE Company;

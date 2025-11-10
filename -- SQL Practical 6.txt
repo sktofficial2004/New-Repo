@@ -1,0 +1,74 @@
+-- SQL Practical 6 - Implementation of Joins
+-- Aim: To understand and implement various types of SQL joins such as INNER JOIN, LEFT JOIN, RIGHT JOIN, and FULL JOIN.
+
+-- 1. Create a Database
+CREATE DATABASE JoinDemo;
+
+-- 2. Use the Database
+USE JoinDemo;
+
+-- 3. Create Department Table
+CREATE TABLE Department (
+  Dept_ID INT PRIMARY KEY,
+  Dept_Name VARCHAR(50)
+);
+
+-- 4. Create Employee Table
+CREATE TABLE Employee (
+  Emp_ID INT PRIMARY KEY,
+  Emp_Name VARCHAR(50),
+  Dept_ID INT,
+  Salary DECIMAL(10,2),
+  FOREIGN KEY (Dept_ID) REFERENCES Department(Dept_ID)
+);
+
+-- 5. Insert Data into Department
+INSERT INTO Department VALUES (1, 'HR');
+INSERT INTO Department VALUES (2, 'IT');
+INSERT INTO Department VALUES (3, 'Finance');
+INSERT INTO Department VALUES (4, 'Admin');
+
+-- 6. Insert Data into Employee
+INSERT INTO Employee VALUES (101, 'Abhi', 1, 45000);
+INSERT INTO Employee VALUES (102, 'Hitesh', 2, 50000);
+INSERT INTO Employee VALUES (103, 'Ashley', 3, 55000);
+INSERT INTO Employee VALUES (104, 'Piyush', 2, 47000);
+INSERT INTO Employee VALUES (105, 'Pratik', NULL, 40000);
+
+-- 7. INNER JOIN
+-- Returns records having matching Dept_ID in both tables
+SELECT Employee.Emp_ID, Employee.Emp_Name, Department.Dept_Name, Employee.Salary
+FROM Employee
+INNER JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+-- 8. LEFT JOIN
+-- Returns all employees, even if they don't belong to any department
+SELECT Employee.Emp_ID, Employee.Emp_Name, Department.Dept_Name, Employee.Salary
+FROM Employee
+LEFT JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+-- 9. RIGHT JOIN
+-- Returns all departments, even if no employees are assigned
+SELECT Employee.Emp_ID, Employee.Emp_Name, Department.Dept_Name, Employee.Salary
+FROM Employee
+RIGHT JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+-- 10. FULL OUTER JOIN (Simulated using UNION since MySQL doesn’t have FULL JOIN)
+SELECT Employee.Emp_ID, Employee.Emp_Name, Department.Dept_Name, Employee.Salary
+FROM Employee
+LEFT JOIN Department ON Employee.Dept_ID = Department.Dept_ID
+UNION
+SELECT Employee.Emp_ID, Employee.Emp_Name, Department.Dept_Name, Employee.Salary
+FROM Employee
+RIGHT JOIN Department ON Employee.Dept_ID = Department.Dept_ID;
+
+-- 11. CROSS JOIN
+-- Returns the Cartesian product of both tables (every employee with every department)
+SELECT Employee.Emp_Name, Department.Dept_Name
+FROM Employee
+CROSS JOIN Department;
+
+-- 12. Drop Tables and Database
+DROP TABLE Employee;
+DROP TABLE Department;
+DROP DATABASE JoinDemo;

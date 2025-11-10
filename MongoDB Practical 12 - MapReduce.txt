@@ -1,0 +1,50 @@
+// MongoDB Practical 12 - MapReduce Operation
+// Aim: To implement MapReduce operation in MongoDB.
+
+// 1. Switch to (or create) a database
+use Abhi;
+
+// 2. Create a collection
+db.createCollection('Journal');
+
+// 3. Insert documents
+db.Journal.insert({ 'book_id': 1, 'book_name': 'JavaOOP', 'amt': 500, 'status': 'Available' });
+db.Journal.insert({ 'book_id': 1, 'book_name': 'JavaOOP', 'amt': 400, 'status': 'Not Available' });
+db.Journal.insert({ 'book_id': 1, 'book_name': 'Java', 'amt': 300, 'status': 'Not Available' });
+db.Journal.insert({ 'book_id': 2, 'book_name': 'Java', 'amt': 300, 'status': 'Available' });
+db.Journal.insert({ 'book_id': 2, 'book_name': 'OPP', 'amt': 200, 'status': 'Available' });
+db.Journal.insert({ 'book_id': 2, 'book_name': 'C+', 'amt': 200, 'status': 'Available' });
+db.Journal.insert({ 'book_id': 3, 'book_name': 'C+', 'amt': 150, 'status': 'Available' });
+db.Journal.insert({ 'book_id': 3, 'book_name': 'C++', 'amt': 200, 'status': 'Not Available' });
+db.Journal.insert({ 'book_id': 4, 'book_name': 'OPP C++', 'amt': 300, 'status': 'Not Available' });
+db.Journal.insert({ 'book_id': 5, 'book_name': 'OPP C++', 'amt': 400, 'status': 'Available' });
+db.Journal.insert({ 'book_id': 5, 'book_name': 'C++', 'amt': 400, 'status': 'Available' });
+db.Journal.insert({ 'book_id': 5, 'book_name': 'C++ Java', 'amt': 400, 'status': 'Not Available' });
+
+// 4. Define the Map function
+// This emits (key, value) pairs, where key = book_id and value = amt
+var mapfunction = function() {
+  emit(this.book_id, this.amt);
+};
+
+// 5. Define the Reduce function
+// This function adds up all amounts for each book_id
+var reducefunction = function(key, value) {
+  return Array.sum(value);
+};
+
+// 6. Execute MapReduce operation
+// Output will be stored in a new collection named 'new'
+db.Journal.mapReduce(mapfunction, reducefunction, { out: 'new' });
+
+// 7. View the result
+db.new.find().pretty();
+
+// Expected Output Example:
+// { "_id": 1, "value": 1200 }
+// { "_id": 2, "value": 700 }
+// { "_id": 3, "value": 350 }
+// { "_id": 4, "value": 300 }
+// { "_id": 5, "value": 1200 }
+
+// Each document shows the total amount (sum of 'amt') for each book_id.
