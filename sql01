@@ -1,0 +1,55 @@
+-- SQL Practical 1 - Study of Open Source Relational Database: MySQL
+-- Aim: To perform basic SQL operations using MySQL.
+
+-- 1. Create a Database
+CREATE DATABASE Abhi;
+
+-- 2. Use the Database
+USE Abhi;
+
+-- 3. Create a Table
+CREATE TABLE Student (
+  Roll_No INT PRIMARY KEY,
+  Name VARCHAR(50),
+  Address VARCHAR(100)
+);
+
+-- 4. Insert Records
+INSERT INTO Student VALUES (1, 'Hitesh', 'Nandura');
+INSERT INTO Student VALUES (2, 'Piyush', 'MP');
+INSERT INTO Student VALUES (3, 'Ashley', 'Nashik');
+INSERT INTO Student VALUES (4, 'Kalpesh', 'Dhule');
+INSERT INTO Student VALUES (5, 'Abhi', 'Satara');
+
+-- 5. Display All Records
+SELECT * FROM Student;
+
+-- 6. Update a Record
+UPDATE Student SET Address = 'Pune' WHERE Roll_No = 3;
+
+-- 7. Delete a Record
+DELETE FROM Student WHERE Roll_No = 5;
+
+-- 8. Add a New Column to the Table
+ALTER TABLE Student ADD COLUMN Email VARCHAR(100);
+
+-- 9. Modify Column Data Type
+ALTER TABLE Student MODIFY COLUMN Name VARCHAR(80);
+
+-- 10. Drop a Column
+ALTER TABLE Student DROP COLUMN Email;
+
+-- 11. Create a View
+CREATE VIEW Student_View AS SELECT Roll_No, Name FROM Student;
+
+-- 12. Display Data from the View
+SELECT * FROM Student_View;
+
+-- 13. Drop the View
+DROP VIEW Student_View;
+
+-- 14. Drop the Table
+DROP TABLE Student;
+
+-- 15. Drop the Database
+DROP DATABASE Abhi;
