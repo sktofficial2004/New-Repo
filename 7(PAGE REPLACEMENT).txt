@@ -1,0 +1,248 @@
+---------------------FIRST IN FIRST OUT------------------
+
+
+
+import java.util.*;
+
+public class FIFO{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of pages: ");
+        int n = sc.nextInt();
+        int pages[] = new int[n];
+        System.out.println("Enter reference string:");
+        for (int i = 0; i < n; i++) pages[i] = sc.nextInt();
+
+        System.out.print("Enter frame capacity: ");
+        int cap = sc.nextInt();
+        int frame[] = new int[cap];
+        Arrays.fill(frame, -1);
+
+        int index = 0, hit = 0, fault = 0;
+
+        System.out.println("\nPage\tFrame\t\tStatus");
+        for (int i = 0; i < n; i++) {
+            boolean found = false;																					
+
+            // Check for hit
+            for (int j = 0; j < cap; j++) {
+                if (frame[j] == pages[i]) {
+                    found = true;
+                    hit++;
+                    break;
+                }
+            }
+
+            // If not found => page fault
+            if (!found) {
+                frame[index] = pages[i];
+                index = (index + 1) % cap;
+                fault++;
+            }
+
+            // Print status
+            System.out.print(pages[i] + "\t");
+            for (int j = 0; j < cap; j++) {
+                if (frame[j] == -1)
+                    System.out.print("- ");
+                else
+                    System.out.print(frame[j] + " ");
+            }
+            System.out.println("\t" + (found ? "Hit" : "Fault"));
+        }
+
+        System.out.println("\nTotal Hits: " + hit);
+        System.out.println("Total Faults: " + fault);
+        System.out.printf("Hit Ratio: %.2f%%\n", (hit * 100.0 / n));
+        System.out.printf("Fault Ratio: %.2f%%\n", (fault * 100.0 / n));
+
+        sc.close();
+    }
+}
+
+
+
+-------------------------OPTIMAL PAGE REPLACEMENT------------------------------
+
+
+
+import java.util.*;
+
+public class OptimalPageReplacement {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Pages: ");
+        int n = sc.nextInt();
+        int pages[] = new int[n];
+        for (int i = 0; i < n; i++) pages[i] = sc.nextInt();
+
+        System.out.print("Frames: ");
+        int f = sc.nextInt(), frame[] = new int[f];
+        Arrays.fill(frame, -1);
+        int hit = 0, fault = 0;
+
+        System.out.println("\nPg\tFrames\tStatus");
+        for (int i = 0; i < n; i++) {
+            int p = pages[i], pos = -1;
+            for (int j = 0; j < f; j++) if (frame[j] == p) pos = j;
+
+            if (pos == -1) { // page fault
+                fault++;
+                int rep = -1, far = -1;
+                for (int j = 0; j < f; j++) {
+                    if (frame[j] == -1) { rep = j; break; }
+                    int k;
+                    for (k = i + 1; k < n; k++) if (frame[j] == pages[k]) break;
+                    if (k > far) { far = k; rep = j; }
+                }
+                frame[rep] = p;
+            } else hit++;
+
+            System.out.print(p + "\t");
+            for (int j = 0; j < f; j++) System.out.print((frame[j] == -1 ? "- " : frame[j] + " "));
+            System.out.println("\t" + (pos == -1 ? "F" : "H"));
+        }
+        System.out.printf("\nHits=%d Faults=%d\nHit Ratio=%.2f%%\n", hit, fault, hit * 100.0 / n);
+        sc.close();
+    }
+}
+
+
+
+
+-----------------------LEAST RECENTLY USED-----------------------
+
+
+
+import java.util.*;
+
+public class LRU{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of pages: ");
+        int n = sc.nextInt();
+        int pages[] = new int[n];
+        System.out.println("Enter reference string:");
+        for (int i = 0; i < n; i++) pages[i] = sc.nextInt();
+
+        System.out.print("Enter frame capacity: ");
+        int f = sc.nextInt();
+        int frame[] = new int[f];
+        Arrays.fill(frame, -1);
+        int hit = 0, fault = 0;
+
+        System.out.println("\nPg\tFrames\tStatus");
+        ArrayList<Integer> recent = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            int p = pages[i];
+            boolean found = false;
+
+            // Check for hit
+            for (int j = 0; j < f; j++)
+                if (frame[j] == p) { found = true; hit++; break; }
+
+            // If not found => fault
+            if (!found) {
+                fault++;
+                int rep = -1;
+                for (int j = 0; j < f; j++)
+                    if (frame[j] == -1) { rep = j; break; }
+
+                // If all full → remove least recently used
+                if (rep == -1) {
+                    int lru = recent.get(0);
+                    for (int j = 0; j < f; j++)
+                        if (frame[j] == lru) { rep = j; break; }
+                    recent.remove(0);
+                }
+                frame[rep] = p;
+            }
+
+            // Update recent usage (most recent at end)
+            recent.remove((Integer)p);
+            recent.add(p);
+
+            // Print frame status
+            System.out.print(p + "\t");
+            for (int j = 0; j < f; j++)
+                System.out.print((frame[j] == -1 ? "- " : frame[j] + " "));
+            System.out.println("\t" + (found ? "H" : "F"));
+        }
+
+        System.out.printf("\nHits=%d Faults=%d\nHit Ratio=%.2f%%\n",
+                hit, fault, hit * 100.0 / n);
+        sc.close();
+    }
+}
+/*
+=== EXPLANATION ===
+
+What are Page Replacement Algorithms?
+Strategies used by operating systems to decide which page to remove from memory
+when a new page needs to be loaded but memory is full (page fault occurs).
+
+🔍 KEY CONCEPTS:
+- Page Fault: When requested page is not in memory
+- Page Hit: When requested page is found in memory
+- Frame: Physical memory slot that holds a page
+- Reference String: Sequence of page requests from processes
+
+📋 FIFO (First In First Out):
+- Replaces the OLDEST page in memory
+- Simple to implement using circular queue
+- Suffers from Belady's Anomaly (more frames ≠ fewer faults)
+- Time Complexity: O(1) for replacement decision
+- Not optimal but fair and predictable
+
+🎯 OPTIMAL Page Replacement:
+- Replaces page that will be used FARTHEST in future
+- Theoretical algorithm (requires future knowledge)
+- Provides MINIMUM possible page faults
+- Used as benchmark to compare other algorithms
+- Impossible to implement in real systems
+
+🕒 LRU (Least Recently Used):
+- Replaces page that hasn't been used for LONGEST time
+- Based on locality of reference principle
+- Good approximation of optimal algorithm
+- Requires tracking of page usage history
+- More complex but better performance than FIFO
+
+COMPARISON TABLE:
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│ Algorithm   │ Complexity  │ Performance │ Practicality│
+├─────────────┼─────────────┼─────────────┼─────────────┤
+│ FIFO        │ O(1)        │ Poor        │ High        │
+│ Optimal     │ O(n)        │ Best        │ Impossible  │
+│ LRU         │ O(n)        │ Good        │ Medium      │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+
+PERFORMANCE METRICS:
+- Hit Ratio: (Hits / Total References) × 100%
+- Fault Ratio: (Faults / Total References) × 100%
+- Higher hit ratio = Better performance
+- Lower fault ratio = Less disk I/O
+
+ADVANTAGES & DISADVANTAGES:
+✅ FIFO: Simple, fair | ❌ Belady's anomaly, poor performance
+✅ Optimal: Best performance | ❌ Requires future knowledge
+✅ LRU: Good performance, realistic | ❌ Complex implementation
+
+REAL-WORLD IMPLEMENTATIONS:
+- FIFO: Simple embedded systems
+- LRU: Most modern operating systems (with approximations)
+- Optimal: Theoretical analysis and benchmarking
+- Clock Algorithm: Practical LRU approximation
+
+BELADY'S ANOMALY:
+- Phenomenon where increasing frames can increase page faults
+- Occurs in FIFO but not in LRU or Optimal
+- Demonstrates that FIFO is not a stack algorithm
+
+This implementation demonstrates how different algorithms handle
+the same page reference string, showing their impact on system
+performance through hit/fault ratios and memory utilization.
+*/

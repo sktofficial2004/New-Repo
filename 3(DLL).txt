@@ -1,0 +1,158 @@
+import java.util.*;
+
+public class DynamicLinkingLoader {
+
+    static class Symbol {
+        String name;
+        int address;
+        Symbol(String n, int a){ name=n; address=a; }
+    }
+
+    static Map<String,Integer> ESTAB = new LinkedHashMap<>();
+    static List<String[]> modules = new ArrayList<>();
+    static int startAddress = 0;
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of object modules: ");
+        int n = sc.nextInt(); sc.nextLine();
+
+        // Input object modules (simplified)
+        for(int i=0; i<n; i++){
+            System.out.println("
+Enter lines for Module "+(i+1)+" (END to stop):");
+            List<String> mod = new ArrayList<>();
+            while(true){
+                String line = sc.nextLine().trim();
+                if(line.equalsIgnoreCase("END")) break;
+                mod.add(line);
+            }
+            modules.add(mod.toArray(new String[0]));
+        }
+
+        pass1();
+        pass2();
+    }
+
+    // ---------- PASS 1 ----------
+    static void pass1(){
+        int currentAddress = startAddress;
+        System.out.println("
+=== PASS 1 : Building ESTAB ===");
+        for(String[] mod : modules){
+            for(String line : mod){
+                String[] parts = line.split("\s+");
+                if(parts[0].equalsIgnoreCase("DEF")){
+                    ESTAB.put(parts[1], currentAddress + Integer.parseInt(parts[2]));
+                    System.out.println("Added Symbol: "+parts[1]+" @ "+ESTAB.get(parts[1]));
+                }
+                else if(parts[0].equalsIgnoreCase("START")){
+                    currentAddress = Integer.parseInt(parts[1]);
+                }
+            }
+        }
+        System.out.println("ESTAB = "+ESTAB);
+    }
+
+    // ---------- PASS 2 ----------
+    static void pass2(){
+        System.out.println("
+=== PASS 2 : Linking and Relocation ===");
+        for(String[] mod : modules){
+            for(String line : mod){
+                String[] parts = line.split("\s+");
+                if(parts[0].equalsIgnoreCase("REF")){
+                    String sym = parts[1];
+                    if(ESTAB.containsKey(sym))
+                        System.out.println("Resolved reference to "+sym+" → Address "+ESTAB.get(sym));
+                    else
+                        System.out.println("Unresolved symbol: "+sym);
+                }
+                if(parts[0].equalsIgnoreCase("TEXT")){
+                    String inst = parts[1];
+                    String operand = parts[2];
+                    if(ESTAB.containsKey(operand))
+                        System.out.println("Loaded instruction: "+inst+" "+operand+
+                                           " → ("+ESTAB.get(operand)+")");
+                    else
+                        System.out.println("Loaded instruction: "+inst+" "+operand);
+                }
+            }
+        }
+        System.out.println("
+Linking completed successfully!");
+    }
+}
+
+
+
+/*
+=== EXPLANATION ===
+
+What is a Dynamic Linking Loader?
+A system program that combines multiple object modules into a single executable program
+by resolving external references and performing address relocation at load time.
+
+PASS 1 (Symbol Table Construction):
+- Scans all object modules to find symbol definitions
+- Builds ESTAB (External Symbol Table) mapping symbol names to addresses
+- Processes DEF records: symbols defined in current module
+- Handles START records: module loading addresses
+- Creates global symbol table for reference resolution
+
+PASS 2 (Linking and Relocation):
+- Processes REF records: external symbol references
+- Resolves references using ESTAB built in Pass 1
+- Handles TEXT records: executable instructions with operands
+- Performs address relocation by substituting symbol addresses
+- Reports unresolved symbols as linking errors
+
+Key Components:
+1. ESTAB (External Symbol Table): Maps symbol names to absolute addresses
+2. Object Modules: Contains DEF, REF, TEXT, START records
+3. Symbol Resolution: Matches references with definitions
+4. Address Relocation: Converts symbolic addresses to absolute addresses
+
+Record Types:
+- DEF: Symbol definition (symbol name, offset)
+- REF: External reference (symbol name)
+- TEXT: Executable instruction (opcode, operand)
+- START: Module starting address
+
+Example Flow:
+Module A defines FUNC at offset 100
+Module B references FUNC
+Pass 1: ESTAB[FUNC] = base_address + 100
+Pass 2: Replace FUNC reference with actual address from ESTAB
+
+Benefits:
+- Modular programming support
+- Code reusability
+- Separate compilation
+- Dynamic symbol resolution
+- Memory-efficient loading
+
+This approach enables linking multiple independently compiled modules
+into a single executable program with proper symbol resolution.
+
+
+SAMPLE INPUTS:
+
+Enter number of object modules: 2
+
+Enter lines for Module 1 (END to stop):
+START 1000
+DEF FUNC 100
+TEXT MOV FUNC
+TEXT ADD FUNC
+END
+
+Enter lines for Module 2 (END to stop):
+START 2000
+REF FUNC
+TEXT CALL FUNC
+TEXT SUB FUNC
+END
+
+*/

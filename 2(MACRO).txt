@@ -1,0 +1,174 @@
+import java.util.*;
+
+public class TwoPassMacroProcessor {
+
+    static class MNTEntry {
+        String name;
+        int mdtIndex;
+        MNTEntry(String n, int i) { name = n; mdtIndex = i; }
+    }
+
+    static List<MNTEntry> MNT = new ArrayList<>();
+    static List<String> MDT = new ArrayList<>();
+    static Map<String, Integer> ALA = new LinkedHashMap<>();
+    static List<String> expandedCode = new ArrayList<>();
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of source lines: ");
+        int n = Integer.parseInt(sc.nextLine());
+        System.out.println("Enter source program:");
+        List<String> source = new ArrayList<>();
+        for (int i=0; i<n; i++) source.add(sc.nextLine());
+
+        pass1(source);
+        pass2(source);
+
+        System.out.println("
+=== MACRO NAME TABLE (MNT) ===");
+        for (MNTEntry e : MNT)
+            System.out.println("Name: " + e.name + " | MDT Index: " + e.mdtIndex);
+
+        System.out.println("
+=== MACRO DEFINITION TABLE (MDT) ===");
+        for (int i=0; i<MDT.size(); i++)
+            System.out.println(i + ": " + MDT.get(i));
+
+        System.out.println("
+=== EXPANDED SOURCE CODE ===");
+        for (String line : expandedCode)
+            System.out.println(line);
+    }
+
+    // -------- PASS 1 --------
+    static void pass1(List<String> src) {
+        boolean inMacro = false;
+        String macroName = null;
+        int mdtIndex = 0;
+        for (int i=0; i<src.size(); i++) {
+            String line = src.get(i).trim();
+            String[] parts = line.split("\s+|,");
+            if (line.equalsIgnoreCase("MACRO")) {
+                inMacro = true;
+                continue;
+            }
+            if (inMacro) {
+                if (macroName == null) {
+                    // Macro header line
+                    macroName = parts[0];
+                    MNT.add(new MNTEntry(macroName, MDT.size()));
+                    for (int p=1; p<parts.length; p++)
+                        ALA.put(parts[p], p);
+                } else if (parts[0].equalsIgnoreCase("MEND")) {
+                    MDT.add("MEND");
+                    inMacro = false;
+                    macroName = null;
+                    continue;
+                } else {
+                    String temp = line;
+                    for (String key : ALA.keySet())
+                        temp = temp.replace(key, "#" + ALA.get(key));
+                    MDT.add(temp);
+                }
+            }
+        }
+    }
+
+    // -------- PASS 2 --------
+    static void pass2(List<String> src) {
+        boolean skip = false;
+        for (String line : src) {
+            if (line.equalsIgnoreCase("MACRO")) { skip = true; continue; }
+            if (skip && line.equalsIgnoreCase("MEND")) { skip = false; continue; }
+            if (skip) continue;
+
+            String[] parts = line.split("\s+|,");
+            boolean isMacroCall = false;
+            for (MNTEntry e : MNT) {
+                if (parts[0].equalsIgnoreCase(e.name)) {
+                    isMacroCall = true;
+                    List<String> args = new ArrayList<>();
+                    for (int i=1; i<parts.length; i++)
+                        args.add(parts[i]);
+                    expand(e.mdtIndex, args);
+                }
+            }
+            if (!isMacroCall)
+                expandedCode.add(line);
+        }
+    }
+
+    static void expand(int index, List<String> args) {
+        for (int i=index; i<MDT.size(); i++) {
+            String line = MDT.get(i);
+            if (line.equalsIgnoreCase("MEND")) break;
+            String temp = line;
+            for (int a=0; a<args.size(); a++)
+                temp = temp.replace("#" + (a+1), args.get(a));
+            expandedCode.add(temp);
+        }
+    }
+}
+
+
+/*
+=== EXPLANATION ===
+
+What is a Two Pass Macro Processor?
+A macro processor that handles macro definitions and expansions in two phases:
+
+PASS 1 (Macro Definition Processing):
+- Scans source code to find macro definitions (MACRO...MEND blocks)
+- Builds MNT (Macro Name Table): Maps macro names to their MDT indices
+- Builds MDT (Macro Definition Table): Stores macro body with parameter placeholders
+- Creates ALA (Argument List Array): Maps formal parameters to positions
+- Replaces formal parameters with placeholders (#1, #2, etc.)
+
+PASS 2 (Macro Expansion):
+- Scans source code again, skipping macro definitions
+- Identifies macro calls by matching with MNT entries
+- For each macro call:
+  * Extracts actual arguments
+  * Retrieves macro definition from MDT
+  * Substitutes placeholders with actual arguments
+  * Adds expanded code to final output
+- Non-macro lines are copied as-is
+
+Key Data Structures:
+1. MNT: Stores macro names and their starting positions in MDT
+2. MDT: Stores macro definitions with parameter placeholders
+3. ALA: Maps parameter names to their positions during Pass 1
+4. Expanded Code: Final output with all macros expanded
+
+Example:
+Input:
+  MACRO
+  ADD_TWO A, B
+  LOAD A
+  ADD B
+  MEND
+  
+  ADD_TWO X, Y
+
+Output:
+  LOAD X
+  ADD Y
+
+This approach separates definition processing from expansion, enabling 
+proper handling of multiple macro definitions and nested macro calls.
+
+
+SAMPLE INPUTS:
+
+Enter number of source lines: 8
+Enter source program:
+MACRO
+ADD_TWO &ARG1, &ARG2
+LOAD &ARG1
+ADD &ARG2
+MEND
+START
+ADD_TWO A, B
+END
+
+*/

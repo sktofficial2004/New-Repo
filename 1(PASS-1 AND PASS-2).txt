@@ -1,0 +1,134 @@
+import java.util.*;
+
+class Instruction {
+    String label, opcode, operand;
+    Instruction(String l, String o, String op) {
+        label = l; opcode = o; operand = op;
+    }
+}
+
+public class TwoPassAssembler {
+
+    static Map<String, Integer> symtab = new LinkedHashMap<>();
+    static Map<String, Integer> littab = new LinkedHashMap<>();
+    static Map<String, String> optab = new HashMap<>();
+    static List<String> intermCode = new ArrayList<>();
+
+    static void loadOptab() {
+        optab.put("MOVER", "01");
+        optab.put("MOVEM", "02");
+        optab.put("ADD", "03");
+        optab.put("SUB", "04");
+        optab.put("MULT", "05");
+        optab.put("DIV", "06");
+        optab.put("READ", "07");
+        optab.put("PRINT", "08");
+    }
+
+    public static void main(String[] args) {
+        loadOptab();
+        Scanner sc = new Scanner(System.in);
+
+        List<Instruction> code = new ArrayList<>();
+        System.out.print("Enter number of lines in assembly program: ");
+        int n = Integer.parseInt(sc.nextLine());
+
+        System.out.println("Enter instructions (Label Opcode Operand) - use '-' if not present:");
+        for(int i=0; i<n; i++){
+            String[] parts = sc.nextLine().trim().split("\s+");
+            code.add(new Instruction(parts[0], parts[1], parts[2]));
+        }
+
+        pass1(code);
+        pass2();
+    }
+
+    static void pass1(List<Instruction> code) {
+        int LC = 0;
+        System.out.println("
+=== PASS 1 ===");
+        for(Instruction ins : code){
+            if(!ins.label.equals("-"))
+                symtab.put(ins.label, LC);
+
+            if(ins.opcode.equals("START"))
+                LC = Integer.parseInt(ins.operand);
+            else if(optab.containsKey(ins.opcode))
+                LC += 1;
+            else if(ins.opcode.equals("DC") || ins.opcode.equals("DS"))
+                LC += 1;
+            else if(ins.opcode.equals("END")){
+                for(String lit : littab.keySet())
+                    littab.put(lit, LC++);
+            }
+            else if(ins.operand.startsWith("="))
+                littab.put(ins.operand, -1);
+
+            intermCode.add("(" + ins.opcode + "," + ins.operand + ")");
+        }
+
+        System.out.println("
+Symbol Table: " + symtab);
+        System.out.println("Literal Table: " + littab);
+        System.out.println("Intermediate Code: " + intermCode);
+    }
+
+    static void pass2() {
+        System.out.println("
+=== PASS 2 ===");
+        for(String line : intermCode){
+            for(String sym : symtab.keySet())
+                line = line.replace(sym, symtab.get(sym).toString());
+            for(String lit : littab.keySet())
+                line = line.replace(lit, littab.get(lit).toString());
+            System.out.println("Machine Code: " + line);
+        }
+    }
+}
+
+
+/*
+=== EXPLANATION ===
+
+What is a Two Pass Assembler?
+A Two Pass Assembler converts assembly language code to machine code in two phases:
+
+PASS 1 (Symbol Resolution):
+- Scans the entire program once
+- Creates Symbol Table: Maps labels to their memory addresses
+- Creates Literal Table: Maps literals (=5, =10) to their addresses
+- Maintains Location Counter (LC) to track memory addresses
+- Generates intermediate code for Pass 2
+
+PASS 2 (Code Generation):
+- Uses tables created in Pass 1
+- Replaces all symbols and literals with their actual addresses
+- Generates final machine code
+
+Key Components:
+1. Symbol Table (symtab): Stores label names and their memory addresses
+2. Literal Table (littab): Stores literal values and their addresses
+3. Operation Table (optab): Maps instruction names to machine codes
+4. Location Counter (LC): Tracks current memory address
+
+Example Flow:
+Input: LOOP ADD A, =5
+Pass 1: Creates entry for LOOP in symbol table, =5 in literal table
+Pass 2: Replaces LOOP with address, =5 with its address
+
+This approach handles forward references (labels used before definition) 
+by completing symbol resolution in Pass 1 before code generation in Pass 2.
+
+
+SAMPLE INPUTS:
+
+Enter number of lines in assembly program: 6
+Enter instructions (Label Opcode Operand) - use '-' if not present:
+- START 100
+LOOP MOVER AREG, =5
+- ADD B
+- MOVEM AREG, RESULT
+RESULT DC 1
+- END -
+
+*/

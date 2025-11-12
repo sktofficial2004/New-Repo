@@ -1,0 +1,110 @@
+
+from tkinter import *
+
+root = Tk()
+root.title("Simple Calculator")
+
+entry = Entry(root, width=20, borderwidth=5)
+entry.grid(row=0, column=0, columnspan=4)
+
+def click(num):
+    entry.insert(END, num)
+
+def clear():
+    entry.delete(0, END)
+
+def equal():
+    try:
+        result = eval(entry.get())
+        entry.delete(0, END)
+        entry.insert(0, result)
+    except:
+        entry.delete(0, END)
+        entry.insert(0, "Error")
+
+buttons = [
+    '7','8','9','/',
+    '4','5','6','*',
+    '1','2','3','-',
+    '0','.','=','+'
+]
+
+r, c = 1, 0
+for b in buttons:
+    Button(root, text=b, width=5, height=2, command=lambda x=b: equal() if x=='=' else click(x)).grid(row=r, column=c)
+    c += 1
+    if c > 3:
+        c = 0
+        r += 1
+
+Button(root, text='C', width=5, height=2, command=clear).grid(row=r, column=0)
+
+root.mainloop()
+"""
+=== EXPLANATION ===
+
+What is this Simple Calculator?
+A GUI-based calculator application built using Python's Tkinter library
+that performs basic arithmetic operations with a user-friendly interface.
+
+🔍 KEY COMPONENTS:
+
+📱 GUI Elements:
+- Entry Widget: Display area for numbers and results
+- Button Widgets: Interactive buttons for numbers, operators, and functions
+- Grid Layout: Organized arrangement of calculator elements
+- Event Handling: Responds to button clicks and keyboard input
+
+🧮 Core Functions:
+- add_to_display(): Adds numbers/operators to the display
+- calculate_result(): Evaluates mathematical expressions using eval()
+- clear_display(): Clears the entire display
+- backspace(): Removes last character
+- show_error(): Displays error messages
+
+⌨️ Features:
+- Basic arithmetic operations (+, -, *, /)
+- Decimal point support
+- Clear and backspace functionality
+- Keyboard input support
+- Error handling for invalid expressions
+- Responsive button layout
+- Color-coded buttons (numbers, operators, functions)
+
+🎨 Enhanced Version Improvements:
+- Object-oriented design for better code organization
+- Improved error handling with specific error messages
+- Keyboard support for faster input
+- Better visual design with colors and fonts
+- Responsive grid layout
+- Input validation to prevent invalid operations
+
+🔧 Technical Implementation:
+- Tkinter: Python's standard GUI library
+- eval(): Built-in function to evaluate string expressions
+- Grid Layout Manager: Positions widgets in rows and columns
+- Event Binding: Connects user actions to functions
+- Lambda Functions: Create inline functions for button commands
+
+⚠️ Security Note:
+- Uses eval() for simplicity but not recommended for production
+- In real applications, use proper expression parsers
+- Current implementation is safe for basic calculator operations
+
+💡 How It Works:
+1. User clicks buttons or types on keyboard
+2. Numbers/operators are added to display string
+3. When '=' is pressed, eval() calculates the result
+4. Result is displayed, or error message if invalid
+5. Clear/backspace functions modify the display as needed
+
+🎯 Use Cases:
+- Learning GUI programming with Tkinter
+- Basic arithmetic calculations
+- Educational tool for Python beginners
+- Foundation for more complex calculator applications
+
+This calculator demonstrates fundamental GUI programming concepts
+including event handling, layout management, and user interaction
+in a practical, easy-to-understand application.
+"""

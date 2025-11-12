@@ -1,0 +1,294 @@
+import java.util.*;
+
+public class MemoryAllocation {
+
+    static Scanner sc = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        int choice;
+        do {
+            System.out.println("
+--- Memory Allocation Strategies ---");
+            System.out.println("1. First Fit");
+            System.out.println("2. Best Fit");
+            System.out.println("3. Worst Fit");
+            System.out.println("4. Next Fit");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+
+            switch(choice){
+                case 1: firstFit(); break;
+                case 2: bestFit(); break;
+                case 3: worstFit(); break;
+                case 4: nextFit(); break;
+                case 5: System.out.println("Exiting..."); break;
+                default: System.out.println("Invalid Choice!");
+            }
+        } while(choice != 5);
+    }
+
+    // ---------- FIRST FIT ----------
+    static void firstFit() {
+        System.out.print("Enter number of memory blocks: ");
+        int m = sc.nextInt();
+        int[] block = new int[m];
+        System.out.println("Enter size of each block:");
+        for(int i=0; i<m; i++) block[i] = sc.nextInt();
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+        int[] process = new int[n];
+        System.out.println("Enter size of each process:");
+        for(int i=0; i<n; i++) process[i] = sc.nextInt();
+
+        int[] allocation = new int[n];
+        Arrays.fill(allocation, -1);
+
+        for(int i=0; i<n; i++){
+            for(int j=0; j<m; j++){
+                if(block[j] >= process[i]){
+                    allocation[i] = j;
+                    block[j] -= process[i];
+                    break;
+                }
+            }
+        }
+
+        System.out.println("
+Process No.	Process Size	Block No.");
+        for(int i=0; i<n; i++){
+            if(allocation[i] != -1)
+                System.out.println((i+1) + "		" + process[i] + "		" + (allocation[i]+1));
+            else
+                System.out.println((i+1) + "		" + process[i] + "		Not Allocated");
+        }
+    }
+
+    // ---------- BEST FIT ----------
+    static void bestFit() {
+        System.out.print("Enter number of memory blocks: ");
+        int m = sc.nextInt();
+        int[] block = new int[m];
+        System.out.println("Enter size of each block:");
+        for(int i=0; i<m; i++) block[i] = sc.nextInt();
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+        int[] process = new int[n];
+        System.out.println("Enter size of each process:");
+        for(int i=0; i<n; i++) process[i] = sc.nextInt();
+
+        int[] allocation = new int[n];
+        Arrays.fill(allocation, -1);
+
+        for(int i=0; i<n; i++){
+            int bestIdx = -1;
+            for(int j=0; j<m; j++){
+                if(block[j] >= process[i]){
+                    if(bestIdx == -1 || block[j] < block[bestIdx])
+                        bestIdx = j;
+                }
+            }
+            if(bestIdx != -1){
+                allocation[i] = bestIdx;
+                block[bestIdx] -= process[i];
+            }
+        }
+
+        System.out.println("
+Process No.	Process Size	Block No.");
+        for(int i=0; i<n; i++){
+            if(allocation[i] != -1)
+                System.out.println((i+1)+"		"+process[i]+"		"+(allocation[i]+1));
+            else
+                System.out.println((i+1)+"		"+process[i]+"		Not Allocated");
+        }
+    }
+
+    // ---------- WORST FIT ----------
+    static void worstFit() {
+        System.out.print("Enter number of memory blocks: ");
+        int m = sc.nextInt();
+        int[] block = new int[m];
+        System.out.println("Enter size of each block:");
+        for(int i=0; i<m; i++) block[i] = sc.nextInt();
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+        int[] process = new int[n];
+        System.out.println("Enter size of each process:");
+        for(int i=0; i<n; i++) process[i] = sc.nextInt();
+
+        int[] allocation = new int[n];
+        Arrays.fill(allocation, -1);
+
+        for(int i=0; i<n; i++){
+            int worstIdx = -1;
+            for(int j=0; j<m; j++){
+                if(block[j] >= process[i]){
+                    if(worstIdx == -1 || block[j] > block[worstIdx])
+                        worstIdx = j;
+                }
+            }
+            if(worstIdx != -1){
+                allocation[i] = worstIdx;
+                block[worstIdx] -= process[i];
+            }
+        }
+
+        System.out.println("
+Process No.	Process Size	Block No.");
+        for(int i=0; i<n; i++){
+            if(allocation[i] != -1)
+                System.out.println((i+1)+"		"+process[i]+"		"+(allocation[i]+1));
+            else
+                System.out.println((i+1)+"		"+process[i]+"		Not Allocated");
+        }
+    }
+
+    // ---------- NEXT FIT ----------
+    static void nextFit() {
+        System.out.print("Enter number of memory blocks: ");
+        int m = sc.nextInt();
+        int[] block = new int[m];
+        System.out.println("Enter size of each block:");
+        for(int i=0; i<m; i++) block[i] = sc.nextInt();
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+        int[] process = new int[n];
+        System.out.println("Enter size of each process:");
+        for(int i=0; i<n; i++) process[i] = sc.nextInt();
+
+        int[] allocation = new int[n];
+        Arrays.fill(allocation, -1);
+
+        int last = 0;
+        for(int i=0; i<n; i++){
+            int j = last;
+            do {
+                if(block[j] >= process[i]){
+                    allocation[i] = j;
+                    block[j] -= process[i];
+                    last = j;
+                    break;
+                }
+                j = (j + 1) % m;
+            } while(j != last);
+        }
+
+        System.out.println("
+Process No.	Process Size	Block No.");
+        for(int i=0; i<n; i++){
+            if(allocation[i] != -1)
+                System.out.println((i+1)+"		"+process[i]+"		"+(allocation[i]+1));
+            else
+                System.out.println((i+1)+"		"+process[i]+"		Not Allocated");
+        }
+    }
+}
+
+
+/*
+=== EXPLANATION ===
+
+What are Memory Allocation Strategies?
+Algorithms used by operating systems to allocate memory blocks to processes
+in the most efficient way, minimizing fragmentation and maximizing utilization.
+
+🎯 FIRST FIT:
+- Searches memory blocks from beginning
+- Allocates the FIRST block that can fit the process
+- Fast allocation (O(n) time complexity)
+- Can cause fragmentation at the beginning of memory
+- Most commonly used due to simplicity
+
+🏆 BEST FIT:
+- Searches ALL memory blocks
+- Allocates the SMALLEST block that can fit the process
+- Minimizes wasted space per allocation
+- Slower than First Fit (must check all blocks)
+- Can create many small unusable fragments
+
+📈 WORST FIT:
+- Searches ALL memory blocks  
+- Allocates the LARGEST block that can fit the process
+- Leaves larger remaining fragments
+- Slower allocation process
+- May waste memory but reduces small fragments
+
+🔄 NEXT FIT:
+- Similar to First Fit but starts from last allocated position
+- Uses circular search pattern
+- Faster than First Fit in some cases
+- Distributes allocations more evenly
+- Can cause fragmentation at end of memory
+
+COMPARISON TABLE:
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│ Algorithm   │ Search Time │ Fragmentation│ Best For    │
+├─────────────┼─────────────┼─────────────┼─────────────┤
+│ First Fit   │ Fast        │ Beginning   │ General use │
+│ Best Fit    │ Slow        │ Small holes │ Memory save │
+│ Worst Fit   │ Slow        │ Large holes │ Future alloc│
+│ Next Fit    │ Medium      │ Distributed │ Even spread │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+
+KEY CONCEPTS:
+- Internal Fragmentation: Wasted space within allocated blocks
+- External Fragmentation: Free space too small for any process
+- Compaction: Moving allocated blocks to reduce fragmentation
+
+ADVANTAGES & DISADVANTAGES:
+✅ First Fit: Fast, simple | ❌ Fragmentation at start
+✅ Best Fit: Minimal waste | ❌ Slow, creates tiny fragments  
+✅ Worst Fit: Large fragments | ❌ Memory wastage
+✅ Next Fit: Even distribution | ❌ Circular overhead
+
+REAL-WORLD USAGE:
+- First Fit: Most operating systems (Linux, Windows)
+- Best Fit: Embedded systems with limited memory
+- Worst Fit: Systems expecting large future allocations
+- Next Fit: Load balancing across memory regions
+
+This implementation shows how different strategies handle the same
+memory allocation requests, demonstrating their trade-offs in
+speed, fragmentation, and memory utilization efficiency.
+
+SAMPLE INPUTS:
+
+Enter your choice: 1
+Enter number of memory blocks: 5
+Enter size of each block:
+100 500 200 300 600
+Enter number of processes: 4
+Enter size of each process:
+212 417 112 426
+
+Enter your choice: 2
+Enter number of memory blocks: 5
+Enter size of each block:
+100 500 200 300 600
+Enter number of processes: 4
+Enter size of each process:
+212 417 112 426
+
+Enter your choice: 3
+Enter number of memory blocks: 5
+Enter size of each block:
+100 500 200 300 600
+Enter number of processes: 4
+Enter size of each process:
+212 417 112 426
+
+Enter your choice: 4
+Enter number of memory blocks: 5
+Enter size of each block:
+100 500 200 300 600
+Enter number of processes: 4
+Enter size of each process:
+212 417 112 426
+
+
+*/

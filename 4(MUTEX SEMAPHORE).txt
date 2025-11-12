@@ -1,0 +1,125 @@
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
+
+// ---------- Mutex Example ----------
+class MutexExample {
+    private final ReentrantLock lock = new ReentrantLock();
+
+    void printTable(int n) {
+        lock.lock();  // enter critical section
+        try {
+            System.out.println("Thread " + Thread.currentThread().getName() +
+                               " is printing table of " + n);
+            for (int i = 1; i <= 5; i++) {
+                System.out.println(n + " x " + i + " = " + (n * i));
+                Thread.sleep(400);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        finally {
+            lock.unlock();  // leave critical section
+        }
+    }
+}
+
+// ---------- Semaphore Example ----------
+class SharedPrinter {
+    private final Semaphore sem = new Semaphore(1);  // binary semaphore
+
+    void printJob(String name) {
+        try {
+            sem.acquire();  // wait()
+            System.out.println(name + " got access to printer.");
+            for (int i = 1; i <= 3; i++) {
+                System.out.println(name + " printing page " + i);
+                Thread.sleep(500);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        finally {
+            System.out.println(name + " releasing printer.");
+            sem.release();  // signal()
+        }
+    }
+}
+
+// ---------- Main Class ----------
+public class SynchronizationDemo {
+    public static void main(String[] args) {
+
+        // ---------- Mutex Demonstration ----------
+        System.out.println("=== Mutex Demonstration ===");
+        MutexExample table = new MutexExample();
+        Thread t1 = new Thread(() -> table.printTable(5), "T1");
+        Thread t2 = new Thread(() -> table.printTable(7), "T2");
+        t1.start(); t2.start();
+
+        try { t1.join(); t2.join(); } catch (Exception e) {}
+
+        // ---------- Semaphore Demonstration ----------
+        System.out.println("
+=== Semaphore Demonstration ===");
+        SharedPrinter printer = new SharedPrinter();
+
+        Thread p1 = new Thread(() -> printer.printJob("Process-1"));
+        Thread p2 = new Thread(() -> printer.printJob("Process-2"));
+        Thread p3 = new Thread(() -> printer.printJob("Process-3"));
+
+        p1.start(); p2.start(); p3.start();
+    }
+}
+
+
+
+
+
+/*
+=== EXPLANATION ===
+
+What are Synchronization Mechanisms?
+Tools used to coordinate access to shared resources among multiple threads/processes
+to prevent race conditions and ensure data consistency.
+
+🔒 MUTEX (Mutual Exclusion):
+- Ensures only ONE thread can access critical section at a time
+- Uses ReentrantLock in Java
+- Key Operations:
+  * lock.lock() - Acquire mutex (enter critical section)
+  * lock.unlock() - Release mutex (exit critical section)
+- Use Case: Protecting shared data structures, ensuring atomic operations
+
+🚦 SEMAPHORE:
+- Controls number of threads that can access a resource simultaneously
+- Uses Semaphore class in Java
+- Key Operations:
+  * semaphore.acquire() - Wait for permit (P operation)
+  * semaphore.release() - Release permit (V operation)
+- Types:
+  * Binary Semaphore (permits=1): Acts like mutex
+  * Counting Semaphore (permits>1): Controls resource pool
+
+Key Differences:
+┌─────────────┬─────────────────┬─────────────────┐
+│   Aspect    │     Mutex       │   Semaphore     │
+├─────────────┼─────────────────┼─────────────────┤
+│ Purpose     │ Mutual exclusion│ Resource control│
+│ Ownership   │ Thread-specific │ No ownership    │
+│ Count       │ Binary (0/1)    │ Can be > 1      │
+│ Use Case    │ Critical section│ Resource pool   │
+└─────────────┴─────────────────┴─────────────────┘
+
+Real-World Examples:
+- Mutex: Database transaction, file writing
+- Semaphore: Connection pool, printer queue, parking spaces
+
+Benefits:
+✅ Prevents race conditions
+✅ Ensures data consistency  
+✅ Coordinates resource access
+✅ Enables safe concurrent programming
+
+This demonstration shows how both mechanisms ensure orderly access
+to shared resources, preventing conflicts and maintaining system stability.
+
+SAMPLE INPUTS:
+
+NO INPUT REQUIRED 
+*/
