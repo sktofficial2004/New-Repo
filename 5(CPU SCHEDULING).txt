@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class CPUScheduling {
+public class CPUSceduling {
 
     static Scanner sc = new Scanner(System.in);
 
@@ -186,3 +186,4 @@ PID	AT	BT	CT	TAT	WT");
         } while(choice != 5);
     }
 }
+
